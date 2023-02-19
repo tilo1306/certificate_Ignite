@@ -3,7 +3,7 @@ import type { AWS } from '@serverless/typescript';
 const serverlessConfiguration: AWS = {
   service: 'certificateignite',
   frameworkVersion: '3',
-  plugins: ['serverless-esbuild', "serverless-offline"],
+  plugins: ["serverless-esbuild", "serveless-dynamodb-local","serverless-offline"],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -17,13 +17,14 @@ const serverlessConfiguration: AWS = {
     },
   },
   // import the function via paths
-  functions: { hello:{
-    handler: "src/functions/hello.handle",
+  functions: { 
+    generateCertificate:{
+    handler: "src/functions/generateCertificate.handler",
     events: [
       {
         http: {
-          path: "hello",
-          method: 'get',
+          path: "generateCertificate",
+          method: 'post',
           cors: true
         }
       }
@@ -42,6 +43,33 @@ const serverlessConfiguration: AWS = {
       concurrency: 10,
     },
   },
+  resources:{
+    Resources:{
+      dbCertificateUsers: {
+        Type: "AWS::DybaneDB::Table",
+        Properties: {
+          TableName: "users_certificate",
+          ProvisionedThrougghpu:{
+            ReadCapacityUnits:5,
+            WriteCapacityUnits: 5
+          },
+          AttributeDefinitions: [
+            {
+              AtributeName: "id",
+              AtributeType: "S",
+
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: "id",
+              KeyType: "HASH"
+            }
+          ]
+        }
+      }
+    }
+  }
 };
 
 module.exports = serverlessConfiguration;
